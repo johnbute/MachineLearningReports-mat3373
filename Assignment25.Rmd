@@ -1,0 +1,143 @@
+---
+title: "Assignment24"
+author: "John Bute"
+date: "2024-11-07"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Assignment 25
+
+1. Generate a simulated data set as follows
+```{r}
+
+set.seed(1)
+x <- rnorm(100)
+y <- x - 2 * x^2 + rnorm(100)
+
+```
+
+What is n and what is p? Write out the model used to generate the data in equation form.
+
+In this dataset, n = 100 (number of observations) and p = 1 (Number of predictors, or X)
+
+Thus, Y = X - 2X ^2 + epsilon, where epsilon represents the random term error.
+
+2. Create a scatterplot of X against Y . Comment on what you find.
+
+
+```{r}
+
+plot(x, y, main = "Scatterplot of X vs Y", xlab = "X", ylab = "Y", pch = 19, col = "blue")
+
+```
+
+From what we see, we notice that there is a parabolic trend between X and Y, which is expected as we have a quadratic term in our equation (-2X^2) which introduces curviness in the relationship.
+
+3. Set a random seed, and then compute the LOOCV errors that result from fitting the following four models using least squares:
+•i. Y = β0 + β1X + ε.
+•ii. Y = β0 + β1X1 + β2X2 + ε.
+•iii. Y = β0 + β1X1 + β2X2 + β3X3 + ε.
+•iv. Y = β0 + β1X1 + β2X2 + β3X3 + β4X4 + ε.
+Note you may find it helpful to use the data.frame() function to create a single data set containing both X and Y .
+
+
+```{r}
+# Load necessary library
+library(boot)
+
+# Create data frame with X and Y
+data <- data.frame(x = x, y = y)
+
+# Define a function to compute LOOCV error
+compute_loocv <- function(model) {
+  cv.glm(data, model)$delta[1]
+}
+
+# Set a random seed
+set.seed(2)
+
+# Model 1: Linear
+model_1 <- glm(y ~ x, data = data)
+loocv_1 <- compute_loocv(model_1)
+
+# Model 2: Quadratic
+model_2 <- glm(y ~ poly(x, 2), data = data)
+loocv_2 <- compute_loocv(model_2)
+
+# Model 3: Cubic
+model_3 <- glm(y ~ poly(x, 3), data = data)
+loocv_3 <- compute_loocv(model_3)
+
+# Model 4: Quartic
+model_4 <- glm(y ~ poly(x, 4), data = data)
+loocv_4 <- compute_loocv(model_4)
+
+# Print LOOCV errors
+loocv_results <- data.frame(Model = c("Linear", "Quadratic", "Cubic", "Quartic"),
+                            LOOCV_Error = c(loocv_1, loocv_2, loocv_3, loocv_4))
+print(loocv_results)
+
+
+
+```
+
+
+4. Repeat 3. using another random seed, and report your results. Are your results the same as what you got in 3.? Why
+```{r}
+
+# Set a new random seed
+set.seed(3)
+
+# Recompute LOOCV errors
+loocv_1_new <- compute_loocv(model_1)
+loocv_2_new <- compute_loocv(model_2)
+loocv_3_new <- compute_loocv(model_3)
+loocv_4_new <- compute_loocv(model_4)
+
+# Print new LOOCV results
+loocv_results_new <- data.frame(Model = c("Linear", "Quadratic", "Cubic", "Quartic"),
+                                LOOCV_Error = c(loocv_1_new, loocv_2_new, loocv_3_new, loocv_4_new))
+print(loocv_results_new)
+
+
+
+```
+
+
+The results are the same, as LOOCV is deterministic for a given dataset and model, thus the results will not change. Since, LOOCV splits the datasets at leaves out one observation each time, there are no random elements in the process.
+
+5. Which of the models in 3. had the smallest LOOCV error? Is this what you expected? Explain your answer.
+The quadratic has the smallest LOOCV, which is what I was expecting since the data showed a parabolic form and the equation that generated the data has a quadaratic term as its highest order. Therefore, quadratic models should provide the best fit for the data.
+
+
+6. Comment on the statistical significance of the coefficient estimates that results from fitting each of the models in 3. using OLS. Do these results agree with the conclusions drawn based on the cross-validation results?
+
+```{r}
+
+# Fit models using OLS and examine summary for significance
+summary(model_1)
+summary(model_2)
+summary(model_3)
+summary(model_4)
+
+
+```
+
+
+For the first Model, only the intercept and X are statistcally significant, but the high LOOCV error suggests that the model does not perform well.
+
+For the quadaratic model, all terms are significant as their p-values are < 0.001. Furthermore, this model has the lowest LOOCV out of all the models, which suggests that this is the best model for capturing the relationship between X and Y by including a quadartic term.
+
+For the cubic model, the X, X^2 and intercept are highly significant values, but the higher term X^3  is not significant, with a p-value of 0.784. Thus, the summary of this model suggests that adding the X^3 term was unnecessary and hurts the LOOCV result
+
+Finally, for the last model, the X, X^2 and intercept are highly significant values, but the higher terms X^3 and X^4 are not siginificant with 0.784 nad 0.193 p-values respectiviely, thus indicating that these terms do not help our model, and lead to a higher LOOCV.
+
+In all, these results correspond well to the CV results we obtained.
+
+

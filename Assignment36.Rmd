@@ -1,0 +1,52 @@
+---
+title: "Assignment36"
+author: "John Bute"
+date: "2024-11-18"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+We have seen that in p = 2 dimensions, a linear decision boundary takes the form β0 + β1X1 + β2X2 = 0. We now investigate a non-linear decision boundary. 1. Sketch the curve (1 + X1)\^2 + (2 −X2)\^2 = 4
+
+![](images/clipboard-885468710.png)
+
+As we see, the curve is in fact a circle with a radius of 2. Centered at (-1, -2).
+
+2.  On your sketch, indicate the set of points for which (1 + X1)\^2 + (2 −X2)\^2 \> 4, as well as the set of points for which (1 + X1)2 + (2 −X2)2 ≤4.
+
+![](images/clipboard-1169950367.png)
+
+Any coordinates that satisfy this requirement (1 + X1)\^2 + (2 −X2)\^2 \> 4 are outside the circle.
+
+Take (0, 0) : (1 + 0)\^2 + (2 - 0) \^ 2 = 5 \> 4.
+
+Meanwhile, the opposity will be inside the circle, or on the circle's perimeter.
+
+3.  Suppose that a classifier assigns an observation to the blue class if (1 + X1)\^2 + (2 −X2)\^2 \> 4, and to the red class otherwise. To what class is the observation (0,0) classified? (−1,1)? (2,2)? (3,8)
+
+    As we see, (0,0), (2,2), and (3,8) are outside the circle, while (-1, 1) is inside our circle. Thus we have that
+
+Class(0,0), Class(2,2), Class(3,8) = Blue
+
+Class(-1,1) = Red.
+
+4.  Argue that while the decision boundary in 3. is not linear in terms of X1 and X2, it is linear in terms of X1, X1 \^ 2 , X2, and X2 \^ 2
+
+If we expand our equation:
+
+(1 + X1)\^2 + (2 −X2)\^2 = 4 -\>
+
+1 + 2X1 + X1 \^ 2 + 4 - 4X2 + X2 \^ 2 = 4 -\>
+
+2X1 + X1 \^ 2 - 4X2 + X2 \^2 + 1 = 0, which contains quadratic terms and therefore not linear in terms of X1 and X2.
+
+If we transformed this equation into a 4 dimensional space, where:
+
+Z1 = X1, Z2 = X2, Z3 = X1 \^2, Z4 = X2 \^2, we get the equation
+
+1 + 2Z1 + Z3 - 4Z2 + Z4 = 0, which is linear in terms of Z1, Z2, Z3, Z4 (it becomes a hyper plane in a higher dimensional space)

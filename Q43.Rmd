@@ -1,0 +1,79 @@
+---
+title: "Q43"
+author: "John Bute"
+date: "2024-11-29"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+Consider the USArrests data. We perform hierarchical clustering on the states.
+1. Using hierarchical clustering with complete linkage and Euclidean distance, cluster the states (don’t scale the data at first).
+```{r}
+data <- read.csv("C:/Users/johnb/Desktop/Machine Learning/data/USArrests.csv")
+
+hc_clustering <- hclust(dist(data), method = "complete")
+
+plot(hc_clustering, main = "Hierarchical clustering with complete linkage and euclidean distance")
+```
+
+For the next question, it seems that a value of slightly higher than 100 cuts the cluster into three distinct ones
+2. Cut the dendrogram at a height that results in three distinct clusters. Which states belong to which
+clusters?
+```{r}
+clusters <- cutree(hc_clustering, k = 3)
+cluster_membership <- data.frame(State = rownames(data), Cluster = clusters)
+print(cluster_membership)
+
+
+split(cluster_membership$State, cluster_membership$Cluster)
+
+cluster_counts <- as.data.frame(table(clusters))
+
+colnames(cluster_counts) <- c("Cluster", "Number of States")
+
+print(cluster_counts)
+
+
+```
+
+
+3. Hierarchically cluster the states using complete linkage and Euclidean distance, after scaling the variables to have standard deviation one.
+
+```{r}
+data_scaled <- data
+data_scaled[, c(2:5)] <- scale(data[, c(2:5)])
+hierarical_scaled_clustering <- hclust(dist(data_scaled), method="complete")
+
+
+plot(hierarical_scaled_clustering)
+
+clusters <- cutree(hierarical_scaled_clustering, k = 3)
+cluster_membership <- data.frame(State = rownames(data), Cluster = clusters)
+print(cluster_membership)
+
+
+print(split(cluster_membership$State, cluster_membership$Cluster))
+
+cluster_counts <- as.data.frame(table(clusters))
+
+colnames(cluster_counts) <- c("Cluster", "Number of States")
+
+print(cluster_counts)
+
+
+
+
+```
+4. What effect does scaling the variables have on the hierarchical clustering obtained? In your opinion,
+should the variables be scaled before the inter-observation dissimilarities are computed? Provide a
+justification for your answer
+
+
+Firstly, the height of the dendogram is smaller when scaled than when it is not. Furthermore, the clusters, when cut into 3, are affected. Furthermore, I think that the variables should be scaled because the four variables in the dataset have different scales.

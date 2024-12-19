@@ -1,0 +1,136 @@
+---
+title: "Assignment32"
+author: "John Bute"
+date: "2024-11-15"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+UniversalBank is looking at converting its liability customers (i.e., customers who only have deposits at the bank) into asset customers (i.e., customers who have a loan with the bank). In a previous campaign, UniversalBank was able to convert 9.6% of 5000 of its liability customers into asset customers. The marketing department would like to understand what combination of factors make a customer more likely to accept a personal loan, in order to better design the next conversion campaign. UniversalBank.csv contains data on 5000 customers, including the following measurements: age, years of professional experience, yearly income (in thousands of USD), family size, value of mortgage with the bank, whether the client has a certificate of deposit with the bank, a credit card, etc. They build 2 decision trees on a training subset of 3000 records to predict whether a customer is likely
+to accept a personal loan (1) or not (0).
+
+a) Explore UniversalBank.csv.  Can you come up with a reasonable guess as to what
+each of the variables represent?
+
+```{r}
+bank_data <- read.csv("C:/Users/johnb/Desktop/Machine Learning/data/UniversalBank.csv")
+
+head(bank_data)
+```
+ID: ID of the customer
+Age: age of the customer
+Experience: Years of professional experience
+Income: Income in thousands
+Zip Code: zip code of the client
+Family: number of family members including the customer
+CCAvg: Average credit card spending in the thousands
+Education: encoded? possibly 1 = Undergrad 2 = Graduate
+Mortgage: Mortgage in the customer's name (thousands)
+Personal.Loand: whether the customer has a personal loan
+Securities.Account: wherther he has a securities account
+CD.Account: does the customer have a Certificate of deposit account
+Online: does the customer use online banking
+CreditCard: does the customer have a credit card.
+
+b)How many variables are used in the construction of tree 𝐴? Of tree 𝐵?
+Tree A uses 5 variables, while tree B uses only 2.
+
+c) Are the following decision rules valid or not for trees 𝐴 and/or 𝐵?
+IF (Income ≥ 114) AND (Education ≥ 1.5) THEN (Personal Loan = 1)
+IF (Income < 92) AND (CCAvg ≥ 3) AND (CD.Account < 0.5) THEN (Personal Loan = 0)
+
+The first statement is valid for both tree A and B
+The second statement is valid for tree A and B
+
+d) What prediction would trees 𝐴 and 𝐵 make for a customer with: a yearly income of 94,000$USD (Income = 94);
+2 kids (Family = 4);
+no certificate of deposit with the bank (CD.Account = 0);
+a credit card interest rate of 3.2% (CCAvg = 3.2), and
+a graduate degree in Engineering (Education = 3)?
+
+
+Tree A will predict that yes, they do have a personal loan. Meanwhile, tree B willpredict that they do not have one.
+
+9. The confusion matrices for the predictions of trees 𝐴 and 𝐵 on the remaining 2000 testing observations are shown below.
+
+Using the appropriate matrices, compute the 9 performance evaluation metrics for each of the
+trees (on the testing set).
+
+The 9 performance evaluation metrics are:
+
+Accuracy, Precision, Recall, F1 Score, False Positive Rate, False Negative Rate, Negative Predictive Value, Balanced Accuracy.
+
+```{r}
+confusion_matrix_A <- matrix(c(1792, 18, 19, 171), nrow = 2, byrow = TRUE)
+
+rownames(confusion_matrix_A) <- c("Actual_A", "Actual_B")
+colnames(confusion_matrix_A) <- c("Pred_A", "Pred_B")
+
+
+confusion_matrix_B <- matrix(c(1801, 64, 10, 125), nrow = 2, byrow = TRUE)
+
+rownames(confusion_matrix_B) <- c("Actual_A", "Actual_B")
+colnames(confusion_matrix_B) <- c("Pred_A", "Pred_B")
+
+compute_metrix <- function(matrix) {
+  
+  TP <- matrix[1,1]
+  TN <- matrix[2,2]
+  FP <- matrix[1,2]
+  FN <- matrix[2,1]
+  
+  
+  accuracy <- (TP + TN) / sum(matrix)
+  
+  precision <- TP / (TP + FP)
+  
+  recall <-TP / (TP + FN)
+  
+  specificity <- TN / (TN + FP)
+  
+  f1_score <- 2 * (precision * recall) / (precision + recall)
+  
+  FPR <- FP / (FP + TN)
+  
+  FNR <- FN / (TP + FN)
+  
+  NPV <- TN / (TN + FN)
+  
+  balanced_accuracy <- (recall + specificity) / 2
+  
+  data.frame(
+    Accuracy = accuracy,
+    Precision = precision,
+    Recall = recall,
+    Specificity = specificity,
+    f1_score = f1_score,
+    False_Positive_Rate = FPR,
+    False_Negative_Rate = FNR,
+    Negative_Predictive_Value = NPV,
+    Balanced_Accuracy = balanced_accuracy
+  )
+  
+}
+
+metrics_A <- compute_metrix(confusion_matrix_A)
+
+metrics_B <- compute_metrix(confusion_matrix_B)
+
+print(metrics_A)
+
+print(metrics_B)
+
+```
+
+b) If customers who would not accept a personal loan get irritated when offered a personal loan, what tree should UniversalBank’s marketing group use to help maintain good customer relations?
+
+This scenario corresponds to a false positive, where the actual outcome is negative (no personal loan wanted) but the predicted outcome was positive.
+Therefore we need to look at the false positive rate and see which one is lower.
+For tree A, this value is 0.0952, while for tree B it is 0.3386. Thus since tree A's FPR is significantly lower than tree B, UniversalBank's marketing groups should use tree A.
+

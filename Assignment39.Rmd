@@ -1,0 +1,87 @@
+---
+title: "Assignment39"
+author: "John Bute"
+date: "2024-11-19"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+5. Construct and evaluate ANN models for the Wines dataset
+
+```{r}
+library(nnet)
+Wine <- read.csv("C:/Users/johnb/Desktop/Machine Learning/data/wine.csv", stringsAsFactors = TRUE)
+
+set.seed(1)
+Wine$Class = as.factor(Wine$Class)
+
+index <- sample(1:nrow(Wine), 0.7 * nrow(Wine))
+train_data <- Wine[index, ]
+test_data <- Wine[-index, ]
+
+ann_model <- nnet(Class ~ ., data = train_data, size = 10, maxit = 100)
+
+summary(ann_model)
+ann_preds <- predict(ann_model, newdata = test_data, type = "class")
+conf_matrix_ann <- table(Actual = test_data$Class, Predicted = ann_preds)
+print(conf_matrix_ann)
+
+test_error <- 1 - sum(diag(conf_matrix_ann)) / sum(conf_matrix_ann)
+cat("Test Error Rate:", test_error, "\n")
+```
+Well, it seems that it predicts just one class, and failing to identify any other class. It is highly biased and no generalization at all.
+
+
+6. Re-run the ANN models incorporating 10 hidden layers with 30
+nodes. How much more time does it take to run a “bigger” neural
+network on the Wine dataset?
+Let us compare both model's run times:
+```{r}
+library(nnet)
+library(microbenchmark)
+
+first_ann_benchmark <- microbenchmark(
+ann_model <- nnet(Class ~ ., data = train_data, size = 10, maxit = 100),  times = 10L
+)
+
+print(first_ann_benchmark)
+```
+So, it takes about 13 miliseconds to run the smaller model. What about the bigger one
+
+```{r}
+library(nnet)
+library(microbenchmark)
+
+big_ann_benchmark <- microbenchmark(
+ann_model <- nnet(Class ~ ., data = train_data, size = 30, maxit = 500),  times = 10L
+)
+
+print(first_ann_benchmark)
+print(big_ann_benchmark)
+
+```
+
+
+As we see, the mean time for the bigger model was 101 milliseconds, while for the smaller model, it was 14 milliseconds.
+
+Let us see if the bigger model performs better
+
+```{r}
+set.seed(123)
+big_ann_model <- nnet(Class ~ ., data = train_data, size = 30, maxit = 500)
+
+big_ann_preds <- predict(big_ann_model, newdata = test_data, type = "class")
+conf_matrix_big_ann <- table(Actual = test_data$Class, Predicted = big_ann_preds)
+print(conf_matrix_big_ann)
+
+test_error <- 1 - sum(diag(conf_matrix_big_ann)) / sum(conf_matrix_big_ann)
+cat("Test Error Rate:", test_error, "\n")
+```
+We achieve an error rate of 11%, which is certainly way better than what we previously got.

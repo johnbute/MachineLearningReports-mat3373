@@ -1,0 +1,141 @@
+---
+title: "Assignment37"
+author: "John Bute"
+date: "2024-11-18"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+In this problem, you will use support vector approaches in order to predict whether a given car gets high or low gas mileage based on the Auto data set.
+
+
+1. Create a binary variable that takes on a 1 for cars with gas mileage above the median, and a 0 for cars with gas mileage below the median.
+```{r}
+Auto <- read.csv("C:/Users/johnb/Desktop/Machine Learning/data/Auto.csv")
+Auto <- na.omit(Auto)
+
+median_mpg <- median(Auto$mpg)
+
+
+Auto$mpg01 <- as.factor(ifelse(Auto$mpg > median_mpg, 1, 0))
+Auto <- Auto[, !(names(Auto) %in% c("name", "mpg"))]
+
+
+```
+
+2. Fit a support vector classifier to the data with various values of cost, in order to predict whether a car
+gets high or low gas mileage. Report the cross-validation errors associated with different values of this parameter. Comment on your results.
+```{r}
+library(e1071)
+
+set.seed(1)
+index <- sample(1:nrow(Auto), 0.7 * nrow(Auto))
+train_data <- Auto[index, ]
+test_data <- Auto[-index, ]
+
+tune <- tune(
+  svm,
+  mpg01 ~ .,
+  data = train_data,
+  kernel = 'linear',
+  ranges = list(cost = c(0.01, 0.05, 0.1, 0.5, 1, 1.5, 5, 10, 50, 100, 150))
+)
+summary(tune)
+
+best_model <- tune$best.model
+
+summary(best_model)
+
+```
+Our model has determined that the best one has C = 1.5
+
+
+
+```{r}
+test_preds <- predict(best_model, newdata = test_data, type = "class")
+conf_matrix <- table(Actual = test_data$mpg01, Predicted = test_preds)
+print(conf_matrix)
+
+test_error <- 1 - sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Test Error Rate:", test_error, "\n")
+```
+As we see, our svm performs pretty well, with an error rate of only 8%
+
+3. Now repeat 2., this time using SVMs with radial and polynomial basis kernels, with different values of gamma and degree and cost. Comment on your results.
+```{r}
+tune_radial <- tune(
+  svm,
+  mpg01 ~ .,  
+  data = train_data,
+  kernel = "radial",
+  ranges = list(
+    cost =  c(0.01, 0.05, 0.1, 0.5, 1, 1.5, 5, 10, 50, 100, 150),
+    gamma =  c(0.01, 0.05, 0.01, 0.1, 1, 10, 100 )
+  )
+)
+
+summary(tune_radial)
+
+best_model_radial <- tune_radial$best.model
+print(best_model_radial)
+
+```
+
+As we see, with a radial model, our best performance come from a cost of 1 and a gamma of 1, with an error rate of 6.5%.
+
+```{r}
+test_preds_radial <- predict(best_model_radial, newdata = test_data, type = "class")
+conf_matrix_radial <- table(Actual = test_data$mpg01, Predicted = test_preds_radial)
+print(conf_matrix_radial)
+
+test_error_radial <- 1 - sum(diag(conf_matrix_radial)) / sum(conf_matrix_radial)
+cat("Test Error Rate:", test_error_radial, "\n")
+
+```
+
+```{r}
+tune_poly <- tune(
+  svm,
+  mpg01 ~ .,  
+  data = train_data,
+  kernel = "polynomial",
+  ranges = list(
+    cost = c(0.01, 0.05, 0.1, 0.5, 1, 1.5, 5, 10, 50, 100, 150),
+    degree = c(2:10)
+  )
+)
+summary(tune_poly)
+best_model_poly <- tune_poly$best.model
+summary(best_model_poly)
+
+test_preds_poly <- predict(best_model_poly, newdata = test_data, type = "class")
+
+conf_matrix_poly <- table(Actual = test_data$mpg01, Predicted = test_preds_poly)
+print(conf_matrix_poly)
+
+test_error_poly <- 1 - sum(diag(conf_matrix_poly)) / sum(conf_matrix_poly)
+cat("Polynomial SVM Test Error Rate:", test_error_poly, "\n")
+
+```
+
+For a polynomial kernel, we use degrees from 2 to 10 with the same cost vector. In total, our best cost is 5, with a degree of 3, and an error rate of 6.7%
+4. Make some plots to back up your assertions in 2. and 3..
+
+Hint: when p > 2, you can use the plot() function to create plots displaying pairs of variables at a time. Essentially, instead of typing plot(svmfit , dat) where svmfit contains your fitted model and dat is a data frame containing your data, you can type plot(svmfit , dat , x1~x4) in order to plot just the first and fourth variables. However, you must replace x1 and x4 with the correct variable names. To find out more, type ?plot.svm.
+
+```{r}
+
+
+plot(best_model, data = Auto, displacement ~ horsepower)
+
+plot(best_model_radial, Auto, horsepower ~ weight)
+plot(best_model_poly, Auto, horsepower ~ weight)
+```
+
+

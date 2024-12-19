@@ -1,0 +1,218 @@
+---
+title: "Assignment_10_MAT3373"
+author: "John Bute"
+date: "2024-10-02"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r cars}
+library(MASS)
+str(Boston)
+?Boston
+```
+
+Taking a look at the Help file, we can see that they have the following
+columns: 
+
+- Crim: per capita crime rate per town - zn: proportion of resedential land zoned for lots over 25,000 sq.ft 
+
+- indus: proportion of non-retail businesses acres per town 
+
+- chas: Charles River dummy variable (= 1 if tract bounds river, 0 otherwise) 
+
+- nox: nitrogen oxides concentration (parts per 10 million) 
+
+- rm: average number of rooms per dwelling 
+
+- age: proportion of owner-occupied units built prior to 1940 
+
+- dis: weighted mean of distances to five boston employment centers 
+
+- rad: index of accessibility to radial highways
+
+- tax: full-value property-tax rate per 10,000\$ - ptratio: pupil-teacher ratio by town 
+
+- black: 1000(Bk - 0.63)\^2 where proportion of blacks by town 
+
+- lstat: lower status of the population 
+
+- medv: median value of owner occupied homes in \$1000s.
+
+In total there are 14 columns and 506 rows. The rows represent a Boston
+suburb or town.
+
+The ggpairs function provides a 14 x 14 scatter plo matrix, along with the correlation for each scatter plot.
+
+```{r, echo=TRUE, warning=FALSE, fig.width=12, fig.height=12}
+library(GGally)
+
+ggpairs(Boston) +
+  theme(axis.text.y = element_text(size = 8),
+        axis.text.x = element_text(size = 8))
+```
+
+
+Crime Rate (CRM):
+
+Crime rate is positively correlated with RAD, and tax, therefore showing that a higher crime rate leads to a bigger access to radial highways, but higher taxes. Meanwhile, crime rate is negatively correlated with larger lot sizes (ZN) and areas with more employment centers (dis). 
+
+Proportion of residential land zoned for lots over 25,000 sq.ft. (ZN):
+
+Whenever ZN increases, the proportion of owner-occupied units built prior to 1940 decrease, which intuitively makes sense as bigger plots generally mean newer buildings. Furthermore, the proportion of non-retail business acres per town decreases as lots of 25,000 sq.ft. or more are generally reserved for big retail-like stores.
+Meanwhile, the weighted mean of distances to five boston employment centers increase as bigger zoned lots increase (which is interesting). Finally, the median value of owner-occupied homes (in $1000s) increase as well, since access to bigger stores generally increase home value.
+
+
+Proportion of non-retail business acres per town (Indus):
+
+When it comes to proportion of non-retail business acres per town, we notice that it is positively correlated with more nitrogen oxides concentration and full-value property tax rate. Although the nitrogen oxides concentration is suprising, the increase in full-value property tax-rate is not, as the more stores that are available to suburbs, the higher value, and therefore higher tax rate is.
+
+On the other hand, whenever the proportion of non-retail business acres per town is high, median value of houses is low, as there are less amenities available. Furthermore, there seems to be a larger distance from Employment centers when there are less non-retail business acres per town, as employment centers tend to be in areas where there are more employment opportunities available.
+
+Charles River dummy variable (= 1 if tract bounds river; 0 otherwise). (CHAS)
+
+Every correlation seems very close to 0, meaning that aspects of a town do not vary or change depending on if it bounds the Charles river or not.
+
+Nitrogen oxides concentration (parts per 10 million). (NOX)
+
+Whenever nitrogen oxides concentration increases, the accessibility to radial highways and the poportion of units built prior to 1940 increase. This is in part due to cars being a polluting factor, therefore it would make sense to have more highways near areas of higher nitrogen oxides. Furthermore, units built prior to 1940 might not run efficiently or be considered green, which can cause even more pollution.
+
+Furthermore, whenever Nitrogen oxides concentration increases, the weighted mean of distances to five Boston employment centers decreases, which is very interesting.
+
+Average number of rooms per dwelling. (RM)
+
+Whenever the number of rooms per dwelling increases, so does the median value of owner-occupied homes, since they are positively correlated. On the contrary, the lower status population percentage increases whenever number of rooms decrease.
+
+Proportion of owner-occupied units built prior to 1940. (Age)
+
+When it comes to the owner-occupied units built prior to 1940, we found that it is positively correlated with the percentage of lower status population, but negatively correlated to the mean of distancesto five Boston employment centers, which makes sense as employment centers are found within newer areas of towns with more opportunities (which come with newer buildings and installations)
+
+
+Index of accessibility to radial highways (RAD)
+
+There is a very high positive correlation between property tax rates and accessibility to radial highways, which indicates that areas with better highway access tend to have higher property taxes.
+
+pupil-teacher ratio by town (ptratio)
+
+Ptratio and MEDV are negatively correlated. Thus, towns who has less students per teacher tend to have homes with higher values.
+
+
+lower status of the population (percent). (LSTAT)
+
+Lower status population percentage tend to be extremely low whenever the median value of houses within a town are higher, which makes sense as lower status population refer to people in the lower class, who do not have access to money to pay for expensive houses.
+
+
+Q3: Are any of the predictors associated with per capita crime rate? If so, explain the relationship.
+
+Positive correlations with CRIM:
+
+NOX (Nitric oxide concentration) – 0.421: Higher levels of air pollution are associated with higher crime rates. Industrial and more polluted areas tend to have higher crime rates.
+RAD (Accessibility to radial highways) – 0.626: Better access to radial highways is linked to higher crime rates. This could be due to urbanization and the increased mobility in these areas.
+TAX (Property tax rate) – 0.583: Higher property tax rates are associated with higher crime rates, possibly indicating that areas with higher taxes are more urbanized or have fewer residential amenities.
+Negative correlations with CRIM:
+
+DIS (Distance to employment centers) – -0.380: Suburbs farther from employment centers tend to have lower crime rates, as these areas might be more residential and less densely populated.
+MEDV (Median home value) – -0.388: Wealthier suburbs with higher home values tend to have lower crime rates.
+RM (Average number of rooms per dwelling) – -0.219: Suburbs with larger homes tend to have lower crime rates.
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+par(mfrow=c(2,3))
+plot(Boston$nox, Boston$crim)
+plot(Boston$rad, Boston$crim)
+plot(Boston$tax, Boston$crim)
+plot(Boston$dis, Boston$crim)
+plot(Boston$medv, Boston$crim)
+plot(Boston$rm, Boston$crim)
+
+```
+
+
+Q4: Do any of the suburbs of Boston appear to have particularly high crime rates, tax rates, or pupil-teacher ratios? Comment on the range of each predictor.
+
+```{r, echo=TRUE, warning=FALSE}
+library(ggplot2)
+columns <- c("crim", "tax", "ptratio")
+ranges <- sapply(Boston[columns], function(x){
+  median_value = median(x)
+  names(median_value) <- "Median"
+  limits <- range(x)
+  names(limits) <- c("Lower Limit", "Higher Limit")
+  return(c(median_value, limits))
+})
+ranges
+```
+Some towns have extremely high crime rates, as the highest range is 88, but the median is 0.25, meaning that certain towns and suburbs exceed by almost 350% increase in crime rate.
+Meanwhile, tax rate seem to have a higher range, but lower median, meaning that there are a smaller group of towns (compared to those with less property tax) who's property taxes are higher, which can be attributed to neighborhoods with nicer houses (which are not seen as often).
+Finally, the pupil-teacher ratio seems to be reasonable, except for the lower limit being at 12.60, indicating that it is less likely that there is a town in Boston who has the resources necessary to furnish an education environment where students receive more attention from teachers.
+
+Q5: How Many Suburbs Bound the Charles River?
+```{r, echo=TRUE, warning=FALSE}
+
+sum(Boston$chas == 1)
+
+```
+
+
+Q6: What is the median pupil-teacher ratio among the towns in this dataset?
+It is 19.05 (as seen in the dataset above)
+
+Q7: Which suburb of Boston has the lowest median value of owner-occupied homes? What are the values of the other predictors for that suburb, and how do those values compare to the overall ranges for those predictors?
+
+```{r min_medv, echo=TRUE}
+library(ggplot2)
+min_medv <- Boston[Boston$medv == min(Boston$medv), ]
+min_medv
+
+```
+
+CRIM (Crime rate) for this suburb is extremely high at 38.35 and 67.92, which is much higher than the median value of 0.26. The crime rate for this suburb is closer to the upper limit (88.98), suggesting it's a high-crime area.
+
+ZN is 0, indicating no land in this suburb is zoned for residential lots larger than 25,000 sq ft, which aligns with many other suburbs as the median value is also 0.
+
+INDUS is 18.10, which is well above the median of 9.69 and closer to the higher end of the range. This suggests that the suburb has a high proportion of non-retail business land, likely contributing to lower home values.
+
+NOX (Nitric oxides concentration) is 0.693, which is also higher than the median of 0.538, indicating poorer air quality, possibly due to industrial activity or proximity to highways.
+
+RM (average number of rooms per dwelling) is 5.453 and 5.683, which is below the median value of 6.21. This indicates smaller homes compared to other suburbs, which may contribute to the lower home values.
+
+AGE (percentage of older homes) is 100%, meaning all homes in this suburb were built before 1940. This is at the upper limit of the range, suggesting that the housing stock is old and potentially less desirable.
+
+DIS (distance to employment centers) is 1.49 and 1.43, which is well below the median of 3.21, indicating that the suburb is relatively close to employment centers. However, proximity to industrial zones might reduce the attractiveness of the area despite being close to job opportunities.
+
+RAD (accessibility to radial highways) is the maximum value of 24, indicating very high access to highways. While accessibility is typically a positive factor, it can also contribute to higher pollution, noise, and potentially crime, which can decrease home values.
+
+TAX (property tax rate) is 666, which is much higher than the median of 330, making this suburb one of the highest-taxed areas in the dataset.
+
+PTRATIO (pupil-teacher ratio) is 20.2, slightly higher than the median of 19.05, indicating slightly larger class sizes and potentially less funding for schools, which might also affect home values.
+
+LSTAT (% lower status population) is 30.59, which is significantly higher than the median of 11.36. A higher percentage of lower-status individuals often correlates with lower home values and higher crime rates.
+
+
+Q8
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+print(sum(Boston$rm > 7))
+print(sum(Boston$rm > 8))
+```
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+eight_rm <- Boston[Boston$rm > 8, ]
+```
+
+
+```{r, echo=TRUE, warning=FALSE}
+
+ranges_rm <- sapply(eight_rm, function(x){
+  median_value = median(x)
+  names(median_value) <- "Median"
+  limits <- range(x)
+  names(limits) <- c("Lower Limit", "Higher Limit")
+  return(c(median_value, limits))
+})
+ranges_rm
+
+```
+If we were to compare houses with eight rooms versus every house, we find that the crime rate is extremely low, with less proportion of lower status population, and a higher median value of homes within the suburb/town.

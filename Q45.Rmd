@@ -1,0 +1,66 @@
+---
+title: "Q45"
+author: "John Bute"
+date: "2024-11-29"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+2. Cluster the Wine datasets using 𝑘−means, for various distance metrics and algorithm parameters. What is your best estimation for the number of
+clusters in each case? Validate your results.
+
+```{r}
+
+data <- read.csv("C:/Users/johnb/Desktop/Machine Learning/data/wine.csv")
+data <- scale(data)
+```
+
+```{r}
+
+set.seed(1)
+
+kmeans_clustering <- kmeans(data, centers = 3, nstart = 25)
+
+print(kmeans_clustering)
+
+
+library(factoextra)
+
+fviz_nbclust(data, kmeans, method = "wss")
+
+
+fviz_cluster(kmeans_clustering, data = data)
+
+```
+
+According to the elbow method, it appears to bend at 3 clusters, therefore 3 is the optimal number. 
+
+
+3. Cluster the Wine datasets using hierarchical clustering, for various algorithm parameters. Validate your results.
+
+```{r}
+
+set.seed(1)
+
+distance_matrix <- dist(data, method = "euclidean")
+
+hc_clustering <- hclust(distance_matrix, method = "ward.D2")
+
+plot(hc_clustering, main = "Hierarchical clustering", cex = 0.6)
+
+hc_clusters <- cutree(hc_clustering, k = 3)
+
+
+cluster_sizes <- table(hc_clusters)
+
+print(cluster_sizes)
+
+```
+

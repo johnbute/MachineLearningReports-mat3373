@@ -1,0 +1,157 @@
+---
+title: "Assignment16"
+author: "John Bute"
+date: "2024-10-15"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+1. Perform the following commands in R:
+```{r}
+
+
+set.seed(1)
+x1 = runif(100)
+x2 = 0.5*x1 + rnorm(100)/10
+y = 2 + 2*x1 + 0.3*x2 + rnorm(100)
+
+
+```
+
+
+The last line corresponds to creating a linear model in which y is a function of x1 and x2. Write out the form
+of the linear model. What are the regression coefficients?
+
+\hat{\beta}_0 = 2
+\hat{\beta}_ 1 = 2
+\hat{\beta}_2 = 0.3
+
+```{r}
+
+cor(x1, x2)
+
+plot(x1, x2)
+
+```
+
+The correlation between x1 and x2 is 0.835 indicates a strong positive linear relationship between the two variables, which we can see with the upward linear trend in the scatterplot. The high correlation suggests collinearity, or that two predictor variables in our regression model are highly correlated.
+
+
+Using this data, fit a least squares regression to predict y using x1 and x2. Describe the results obtained. What are ˆβ0, ˆβ1„ and ˆβ2,? How do these relate to the true β0, β1, and β2? Can you reject the null hypothesis H0 : β1 = 0? How about the null hypothesis H0 : β2 = 0?
+
+```{r}
+
+
+model <- lm(y ~ x1 + x2)
+summary(model)
+
+```
+\hat{\beta}_0 = 2.13
+
+\hat{\beta}_1 = 1.43 
+
+\hat{\beta}_2 = 1
+
+We determined that the true coefficients are 2, 2, and 0.3 respectively. Thus, the coefficients are not as close to their true values, especially \hat{\beta}_1 and \hat{\beta}_2. This may be due to the collinearity between \hat{\beta}_1 and \hat{\beta}_2. 
+However, for the null hypothesis of \hat{\beta}_1 = 0, we check that the p - value is 0.0487 which is less than 0.05, and therefore we can reject the null hypothesis, thus concluding that x1 is a significant predictor for y.
+
+Meanwhile, for x2, the p-value is 0.3754, which is much greater than 0.05, therefore we cannot reject the null hypothesis \hat{\beta}_2 = 0, which suggests that x2 is not a statistically significant predictor for y
+
+
+4. Now fit a least squares regression to predict y using only x1. Comment on your results. Can you reject the null hypothesis H0 : β1 = 0?
+
+
+```{r}
+
+
+model1 <- lm(y ~ x1)
+summary(model1)
+
+```
+
+
+\hat{\beta}_0 = 2.1124
+
+\hat{\beta}_1 = 1.9759 
+
+In terms of rejecting the null hypothesis, we see that its p-value is significantly low (2.66e-06) (close to 0). As a result, we can safely reject the null hypothesis.
+
+Now fit a least squares regression to predict y using only x2. Comment on your results. Can you reject
+the null hypothesis H0 : β1 = 0?
+
+
+```{r}
+
+
+model2 <- lm(y ~ x2)
+summary(model2)
+
+```
+
+\hat{\beta}_0 = 2.3899     
+
+\hat{\beta}_1 = 2.8996      
+
+By looking at the p-value of x2 (1.37e-05), we can see that the null hypothesis can be safely rejected as it is very close to 0.
+
+Do the results obtained in 3. to 5. contradict each other? Explain your answer
+
+The results from question 3 show that x2 is not significant. However, the model for x2 shows that it is significant due to its p-value. This contradition happens due to the collinearity between x1 and x2, as the variance caused by x2 is largely shared with x1, thus reducing the significance of x1. However, the significance of x1 is maintained across both models its included in, although its strength is reduced in the model that it shares with x2
+
+
+Now suppose we obtain one additional observation, which was unfortunately mismeasure
+
+
+```{r}
+x1 <- c(x1, 0.1)
+x2 <- c(x2, 0.8)
+y <- c(y, 6)
+
+```
+
+
+refitting model y onto x1 and x2
+
+```{r}
+model_y_x1_x2_new <- lm(y ~ x1 + x2)
+summary(model_y_x1_x2_new)
+```
+
+refitting model y onto x1
+
+```{r}
+model_y_x1_new <- lm(y ~ x1)
+summary(model_y_x1_new)
+```
+
+
+refitting model y onto x2
+
+```{r}
+model_y_x2_new <- lm(y ~ x2)
+summary(model_y_x2_new)
+```
+
+```{r}
+par(mfrow = c(2, 2))
+
+plot(model_y_x1_x2_new, which = 5)
+title("Model: y ~ x1 + x2")
+plot(model_y_x1_new, which = 5)
+title("Model: y ~ x1")
+plot(model_y_x2_new, which = 5)
+title("Model: y ~ x2")
+
+```
+
+Re-fit the linear models from 3. to 5. using this new data. What effect does this new observation have on the each of the models? In each model, is this observation an outlier? A high-leverage point? Both? Explain your answers
+
+
+The leverage vs standardized residual plots demonstrate that our added point (labeled 101) is a both a high-leverage point and outlier for our model that uses both x1 and x2. Thus it is a highly influential point as they can distort our model. They pull the regression line significantly away from the true model's fit, leading to bias estimates. Meanwhile, for our model that uses x1, it is not a high-leverage point, but it is an outlier as it is 3 standard deviations up from 0. This means that although this point will be poorly predicted by the model, and increase residual variance (higher standard errors for coefficients), but they would not impact the fit of the model if there are few outliers with low-leverage. Finally, for our model that only uses x2, it is a high-leverage point, but it is not an outlier. Thus, it is significant, but since it is not an outlier, it will not pull the regression line significantly towards itself thus not change the fit of the model significantly.

@@ -1,0 +1,79 @@
+---
+title: "Q46"
+author: "John Bute"
+date: "2024-12-05"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+Cluster the Wine datasets using DBSCAN, for various algorithm parameters. Validate your results.
+```{r}
+
+library(dbscan)
+library(factoextra)
+
+data <- read.csv("C:/Users/johnb/Desktop/Machine Learning/data/wine.csv")
+data <- scale(data)
+
+
+set.seed(1)
+dbscan_cluster <- dbscan(data, eps = 3, minPts =10)
+
+fviz_cluster(list(data = data, cluster = dbscan_cluster$cluster), geom = "point")+
+  labs(title = "DBSCAN clustering")
+
+print(table(dbscan_cluster$cluster))
+
+```
+Let us check the silhouette coefficient, to judge the quality of our clusters
+
+```{r}
+library(cluster)
+silhouette_score <- silhouette(dbscan_cluster$cluster[dbscan_cluster$cluster != -1], dist(data[dbscan_cluster$cluster != -1,]))
+
+avg_silhoueete_score <- mean(silhouette_score[, 3])
+
+cat("Average silhouette score: ", avg_silhoueete_score, "\n")
+```
+Our silhouette score is weak. Furthermore, we do not have many dimensions, so our clustering does not suffer from dimensionality. Therefore, this clustering isn't great.
+
+Cluster the Wine datasets using spectral clustering, for various algorithm parameters. Validate your results.
+```{r}
+
+
+library(kernlab)
+library(cluster)
+library(factoextra)
+
+set.seed(1)
+
+cluster_spectral <- specc(data, centers = 3)
+
+fviz_cluster(list(data = data, cluster = as.integer(cluster_spectral))) +
+  labs(title = "Spectral Clustering")
+
+print(table(as.integer(cluster_spectral)))
+
+```
+
+
+We have three clusters now. Interesting
+
+Lets check the silhouette score:
+
+```{r}
+cluster_spectral <- as.integer(cluster_spectral)
+distance_matrix <- dist(data)
+silhouette_score <- silhouette(cluster_spectral, distance_matrix)
+avg_silhouette_score <- mean(silhouette_score[, 3])
+cat("Average silhouette score: ", avg_silhouette_score, "\n")
+
+```
+We did way better than DBScan.

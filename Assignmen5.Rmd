@@ -1,0 +1,34 @@
+---
+title: "Assignment5_MAT3373"
+author: "John Bute"
+date: "2024-10-01"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Assignment 5
+
+Firstly, I believe that it does capture the bias-variance tradeoff very well. Bias is the aspect of enforcing an assumption onto a situation, which can cause errors. In the case of memes, this corresponds to a meme with the same format no matter what, but assuming this meme can fit any situation would be an example of high bias, just like in models, a high bias models would not capture the nuances of the data.
+
+Meanwhile, variance is the how much the model adjusts depending on the dataset. It would correspond to a meme that will change widly and randomly every time, as it is extremely sensitive to the situation. However, a high variance meme can be understood by a small amount of people, but overall, people can struggle to understand it, just like high variance models, which struggle to generalize to new unseen data.
+
+Finally, the Bias-Variance balance was well explained, as in machine learning, you want to strike a balance between bias and vairance so that it can suit different situations.
+
+In terms of memes, the Distracted Boyfriend meme (part of the Static Steve category) would not be the best choice of memes, as the distracted boyfriend meme does stay the same image no matter what, but its captions are fairly easily adapted to various contexts, which introduces variability. A better meme would be the "Keep calm and carry on meme" which has the exact same back drop, and the caption stays the same, except for maybe the last word or phrase.
+
+![](images/clipboard-3465209717.png)
+
+<https://knowyourmeme.com/memes/keep-calm-and-carry-on>
+
+In terms of Confused Nick Young (random rick meme), it does vary in captions, but does not vary at all in terms of picture. It is not characterized by randomness or unpredictability. A better alternative would be the genre of memes known as "Deep-Friend Memes" They are extremely random and range a wide array of pictures and captions, thus demonstrating the high unpredicability and variance.
+
+![](images/clipboard-3539101725.png)
+
+<https://knowyourmeme.com/memes/deep-fried-memes>
+
+In terms of "Two Buttons" meme, it has a consistent format, but is adapted differently with differet captions, thus being able to capture a wide variety of situations with the same picture. Thus, the two buttons meme displays a balance between bias and variance.
+
+In conclusion, ChatGPT does a good job explaining different concepts regarding the Bias-Variance trade-off. However, it did not pick the best memes for high bias and high variance situations. By picking the memes above, you ensure that ChatGPT's analogy is more effective and educational.

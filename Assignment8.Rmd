@@ -1,0 +1,95 @@
+---
+title: "Assignment8"
+author: "John Bute"
+date: "2024-10-01"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+options(repos = c(CRAN = "https://cran.rstudio.com"))
+```
+
+## Assignment 8
+
+Q1: Load the dataset and set the row names
+
+```{r college_setup, echo = TRUE}
+data <- read.csv("C:/Users/johnb/Desktop/Machine Learning/data/College.csv")
+rownames(data) <- data[,1]
+data <- data[,-1]
+head(data, 3)
+```
+
+Q2:
+Provide a nummerical summary of the data
+```{r college, echo=TRUE}
+summary(data)
+```
+From first glance, we can see that the maximum gradution rate value is 118%. There are some other important observations to look at but we will do so later in the report.
+
+Q3: Produce a scatterplot matrix of the first 10 columns in the data
+```{r college_plots, echo=TRUE, fig.width=5, fig.height=5}
+install.packages("GGally")
+library(GGally)
+ggpairs(data[, 1:10])
+```
+
+
+Q4: Produce side-by-side boxplots of Outstate vs Private
+```{r college_box, echo=TRUE}
+boxplot(Outstate ~ Private, data = data, main="Outstate vs Private", xlab="Private", ylab="Outstate Tuition")
+```
+Based on the boxplots, the out-of-state tuition costs are generally higher for private schools than for public schools. This is not surprising as in general private schools tend to charge more
+
+Q5: Create a new categorical variable, Elite, by binning the Top10perc variable. This variable divides
+universities into two groups: those for which Top10perc > 50 (“Yes”), and those for which that is not
+the case (“No”). How many elite universities are there? Produce side-by-side boxplots of Outstate
+versus Elite.
+```{r college_box_vs_elite, echo=TRUE}
+data$Elite <- ifelse(data$Top10perc > 50, "Yes", "No")
+table(data$Elite)
+boxplot(Outstate ~ Elite, data = data, main="Outstate vs Elite", xlab="Elite", ylab="Outstate Tuition")
+```
+Some outliers for non-elite schools that charge as much and more as Elite schools for out-of-state tuition (perhaps reputation), but overall, there is a clear-cut minimum between elite and non-elite schools when it comes to out-of-state tuition
+
+Q6: Produce histograms with differing numbers of bins for a few of the quantitative variables
+
+```{r histogram_fundergrad, echo=TRUE}
+par(mfrow = c(2,2))
+hist(data$Apps)
+hist(data$F.Undergrad, breaks=20, main="Histogram of Full-time Undergrads", xlab="F.Undergrad")
+hist(data$Grad.Rate, breaks=15, main="Histogram of Graduation Rate", xlab="Grad.Rate")
+hist(data$Expend, breaks=30, main="Histogram of Instructional Expenditure", xlab="Expend")
+```
+
+Q7: Continue exploring the data, and provide a brief summary of what you discove
+```{r college_heatmap, echo=TRUE}
+install.packages("corrplot")
+library(corrplot)
+numeric_data <- data[, sapply(data, is.numeric)]
+cor_matrix <- cor(numeric_data)
+corrplot(cor_matrix, method = "color", tl.cex = 0.8, addCoef.col = "black", number.cex = 0.7)
+```
+Strong Positive Correlations:
+
+Colleges that receive more applications tend to accept more students (Apps and Accept: 0.94).
+Institutions that accept more students tend to enroll more (Accept and Enroll: 0.91).
+Schools with a high percentage of top 10% high school students also have a large percentage of top 25% students (Top10perc and Top25perc: 0.89).
+Colleges with higher instructional expenditure per student tend to charge higher out-of-state tuition fees (Expend and Outstate: 0.67).
+Moderate Positive Correlations:
+
+Schools with more faculty holding PhDs also have more faculty with terminal degrees (PhD and Terminal: 0.85).
+Higher instructional spending per student is moderately linked with higher graduation rates (Expend and Grad.Rate: 0.39).
+A greater percentage of top 10% high school graduates is associated with better graduation rates (Top10perc and Grad.Rate: 0.49).
+Weak or No Correlations:
+
+The cost of books has little to no relationship with other variables in the dataset.
+Negative Correlations:
+
+Schools with lower student-faculty ratios tend to spend more per student (S.F.Ratio and Expend: -0.58).
+More students per faculty member generally results in lower full-time undergrad student populations (S.F Ratio vs F.Undergrad is -0.41 ) and lower PHD-holding faculty members (PHD vs S.F.Ratio of -0.47)
+Schools with more out-of-state students tend to have 
+Schools with more part-time undergraduates tend to have fewer PhD-holding faculty (P.Undergrad and PhD: -0.30).

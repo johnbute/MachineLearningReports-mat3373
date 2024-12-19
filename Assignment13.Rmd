@@ -1,0 +1,80 @@
+---
+title: "Assignment13"
+author: "John Bute"
+date: "2024-10-26"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Assignment 13
+
+To prove that the \( R^2 \) statistic is equal to the square of the correlation \( r \) between \( X \) and \( Y \), we start by noting the definitions:
+
+1. The \( R^2 \) statistic is defined as:
+   \[
+   R^2 = \frac{\text{Explained Sum of Squares (ESS)}}{\text{Total Sum of Squares (TSS)}} = \frac{\sum (\hat{y}_i - \bar{y})^2}{\sum (y_i - \bar{y})^2}
+   \]
+   
+   Since \[ \bar{y} = \bar{x} = 0 \], we can rewrite the expression as:
+    \[
+   R^2 = \frac{\text{Explained Sum of Squares (ESS)}}{\text{Total Sum of Squares (TSS)}} = \frac{\sum (\hat{y}_i)^2}{\sum (y_i)^2}
+   \]
+
+2. In simple linear regression, \( Y = \beta_0 + \beta_1 X \) with \( \bar{x} = \bar{y} = 0 \), so we can safely say the the intercept of the regression function will be 0.
+   \[
+   \hat{y}_i = \beta_1 x_i
+   \]
+   
+3. The total sum of squares (TSS) is:
+   \[
+   \text{TSS} = \sum (y_i - \bar{y})^2 = \sum y_i^2
+   \]
+   due to the assumption earlier 
+
+4. The explained sum of squares (ESS) is:
+   \[
+   \text{ESS} = \sum (\hat{y}_i)^2 = \sum (\beta_1 x_i)^2 = \beta_1^2 \sum x_i^2
+   \]
+
+5. We know that the formula for \( \beta_1 \) is:
+   \[
+   \beta_1 = \frac{\sum x_i y_i}{\sum x_i^2}
+   \]
+
+6. Substituting \( \beta_1 \) into the ESS, we get:
+   \[
+   \text{ESS} = \frac{(\sum x_i y_i)^2}{(\sum x_i^2)^2} * \sum x_i^2 =  \frac{(\sum x_i y_i)^2}{\sum x_i^2}
+   \]
+
+7. The \( R^2 \) statistic can now be expressed as:
+
+\[
+R^2 = \frac{\text{ESS}}{\text{TSS}} = \frac{\frac{(\sum x_i y_i)^2}{\sum x_i^2}}{\sum y_i^2}
+= \frac{(\sum x_i y_i)^2}{\sum x_i^2 * \sum y_i^2}
+\]
+
+   8. The correlation \( r \) between \( X \) and \( Y \) is defined as:
+   
+   
+   
+ \[
+   r = \frac{\sum x_i y_i}{\sqrt{\sum x_i^2 \sum y_i^2}}
+   \]
+
+9. Squaring \( r \), we get:
+   \[
+   r^2 = \left( \frac{\sum x_i y_i}{\sqrt{\sum x_i^2 \sum y_i^2}} \right)^2 = \frac{(\sum x_i y_i)^2}{\sum x_i^2 \sum y_i^2}
+   \]
+
+
+
+Therefore, we have shown that:
+    \[
+    R^2 = r^2
+    \]
+

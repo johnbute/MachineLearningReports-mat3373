@@ -1,0 +1,120 @@
+---
+title: "Assignment22"
+author: "John Bute"
+date: "2024-11-08"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+We will now try to predict per capita crime rate in the Boston data set.
+1. Try out some of the regression methods explored in this chapter, such as best subset selection, the LASSO, ridge regression, and PCR. Present and discuss results for the approaches that you consider.
+
+Set up:
+```{r}
+library(glmnet)
+library(leaps)
+library(pls)
+set.seed(123)
+Boston <- read.csv("C:/Users/johnb/Desktop/Machine Learning/data/Boston.csv")
+y <- Boston$crim
+x <- data.matrix(Boston[, c('zn', 'indus', 'chas', 'nox', 'rm', 'age', 'dis', 'rad', 'tax', 'ptratio', 'black', 'lstat', 'medv')])
+train_indices <- sample(1:nrow(Boston), nrow(Boston) * 0.7)
+
+x_train <- x[train_indices, ]
+y_train <- y[train_indices]
+x_test <- x[-train_indices, ]
+y_test <- y[-train_indices]
+
+
+train_data <- Boston[train_indices, ]
+test_data <- Boston[-train_indices, ]
+
+```
+
+Best subset:
+```{r}
+best_subset <- regsubsets(crim ~ ., data = train_data, nvmax = 13)
+best_subset_summary <- summary(best_subset)
+best_model_size <- which.min(best_subset_summary$bic)
+cat("Best Subset Model Size:", best_model_size, "\n")
+
+best_model_coef <- coef(best_subset, best_model_size)
+print(best_model_coef)
+
+x_test_subset <- as.data.frame(x_test)
+y_best_subset <- as.matrix(x_test_subset[, names(best_model_coef)[-1]]) %*% best_model_coef[-1] + best_model_coef[1]
+mse_best_subset <- mean((y_test - y_best_subset)^2)
+
+print(mse_best_subset)
+```
+Lasso regression:
+```{r}
+x_train_matrix <- model.matrix(crim ~ ., train_data)[, -1]  
+x_test_matrix <- model.matrix(crim ~ ., test_data)[, -1]  
+
+lasso_model <- cv.glmnet(x_train_matrix, y_train, alpha = 1)
+
+best_lambda_lasso <- lasso_model$lambda.min
+cat("Best Lambda for LASSO:", best_lambda_lasso, "\n")
+
+lasso_pred <- predict(lasso_model, s = best_lambda_lasso, newx = x_test_matrix)
+lasso_mse <- mean((y_test - lasso_pred)^2)
+cat("LASSO MSE:", lasso_mse, "\n")
+
+
+```
+Ridge regression:
+```{r}
+ridge_model <- cv.glmnet(x_train_matrix, y_train, alpha = 0)
+best_lambda_ridge <- ridge_model$lambda.min
+cat("Best Lambda for Ridge:", best_lambda_ridge, "\n")
+
+
+ridge_pred <- predict(ridge_model, s = best_lambda_ridge, newx = x_test_matrix)
+ridge_mse <- mean((y_test - ridge_pred)^2)
+cat("Ridge MSE:", ridge_mse, "\n")
+```
+
+Ridge regression:
+```{r}
+pcr_model <- pcr(crim ~ ., data = train_data, validation = "CV")
+summary(pcr_model)
+optimal_components <- which.min(pcr_model$validation$PRESS)
+cat("Optimal number of components for PCR:", optimal_components, "\n")
+
+
+pcr_pred <- predict(pcr_model, test_data, ncomp = optimal_components)
+pcr_mse <- mean((y_test - pcr_pred)^2)
+cat("PCR MSE:", pcr_mse, "\n")
+
+```
+
+
+```{r}
+model_performance <- data.frame(
+  Model = c("Best Subset", "LASSO", "Ridge", "PCR"),
+  MSE = c(mse_best_subset, lasso_mse, ridge_mse, pcr_mse)
+)
+
+print(model_performance)
+
+
+```
+
+2. Propose a model (or set of models) that seem to perform well on this data set, and justify your answer.
+Make sure that you are evaluating model performance using validation set error, cross- validation, or
+some other reasonable alternative, as opposed to using training error.
+
+We are using ridge regression, as it has the lowest MSE among all the models. However, if we want to not use all the predictors, then LASSO might be useful, as it selects only the most important features, and thus is more interpretable.
+
+3. Does your chosen model involve all of the features in the data set? Why or why not?
+```{r}
+coef(ridge_model)
+
+```
+As you see, it does use all the features in the dataset, as we are using ridge regression. Ridge regression shrinks coefficients towards zero (without setting them to zero) and thus we include all the features. However, some are way more impactful than others.
